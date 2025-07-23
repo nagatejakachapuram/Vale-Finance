@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { agentManager } from "./services/agentManager";
 import { seiNetwork } from "./services/seiNetwork";
 import { insertAgentSchema } from "@shared/schema";
+import { sendMessage, getConversationHistory, clearConversation } from "./routes/conversation";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Agent management routes
@@ -116,29 +117,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // MCP conversation routes
-  app.post("/api/mcp/chat", async (req, res) => {
-    try {
-      const { message } = req.body;
-      
-      // Mock MCP response based on message content
-      let response = "";
-      
-      if (message.toLowerCase().includes("outflow") || message.toLowerCase().includes("suppliers")) {
-        response = "Based on your payment history, total outflow to suppliers this month was $24,750 USDC across 15 transactions. The largest payment was $5,200 to TechSupply Corp on Dec 15th.";
-      } else if (message.toLowerCase().includes("recurring") || message.toLowerCase().includes("schedule")) {
-        response = "I've created a recurring payment schedule for the amount specified. The payment will be processed through your Payroll Agent. Would you like me to set up any specific conditions or oracle triggers?";
-      } else if (message.toLowerCase().includes("balance")) {
-        response = "Your treasury currently holds $45,250 USDC across all agents, with $15,000 allocated to yield-generating pools earning 2.5% APY.";
-      } else {
-        response = "I understand you want to manage your Vale Finance operations. I can help you with payments, agent management, treasury operations, and financial insights. What would you like to do?";
-      }
-
-      res.json({ response });
-    } catch (error) {
-      res.status(500).json({ error: "Failed to process chat message" });
-    }
-  });
+  // AI Conversation routes (replacing mock MCP)
+  app.post("/api/conversation/message", sendMessage);
+  app.get("/api/conversation/:sessionId/history", getConversationHistory);
+  app.delete("/api/conversation/:sessionId", clearConversation);
 
   const httpServer = createServer(app);
   return httpServer;

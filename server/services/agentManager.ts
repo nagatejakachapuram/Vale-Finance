@@ -1,6 +1,7 @@
 import { storage } from "../storage";
 import { elizaService } from "./elizaService";
 import { seiNetwork } from "./seiNetwork";
+import { crossmintService } from "./crossmintService";
 import { Agent, InsertAgent } from "@shared/schema";
 
 export class AgentManager {
@@ -11,14 +12,21 @@ export class AgentManager {
 
       // Create Crossmint wallet if enabled
       if (agentData.crossmintEnabled) {
-        const walletAddress = await this.createCrossmintWallet(agent);
-        await storage.updateAgent(agent.id, { walletAddress });
+        try {
+          const wallet = await crossmintService.createWallet(agent.id, agent.name);
+          await storage.updateAgent(agent.id, { walletAddress: wallet.address });
+          agent.walletAddress = wallet.address;
+          console.log(`Crossmint wallet created for agent ${agent.name}: ${wallet.address}`);
+        } catch (error) {
+          console.error(`Failed to create Crossmint wallet for agent ${agent.name}:`, error);
+          // Continue without wallet - can be created later
+        }
       }
 
-      // Deploy ElizaOS agent
+      // Deploy AI-powered agent
       const deployed = await elizaService.deployAgent(agent);
       if (!deployed) {
-        throw new Error("Failed to deploy ElizaOS agent");
+        throw new Error("Failed to deploy AI agent");
       }
 
       // Update agent status
@@ -45,7 +53,7 @@ export class AgentManager {
       const agent = await storage.getAgent(agentId);
       if (!agent) return false;
 
-      // Stop ElizaOS agent
+      // Stop AI agent
       await elizaService.stopAgent(agentId);
 
       // Update status
@@ -72,8 +80,27 @@ export class AgentManager {
       const agent = await storage.getAgent(agentId);
       if (!agent) throw new Error("Agent not found");
 
-      // Execute payment through Sei network
-      const txHash = await seiNetwork.sendTransaction(agent.walletAddress!, recipient, amount, currency);
+      let txHash: string;
+
+      // Use Crossmint for wallet transactions if agent has Crossmint enabled
+      if (agent.crossmintEnabled && agent.walletAddress) {
+        try {
+          txHash = await crossmintService.sendTransaction(
+            `agent-${agent.id}`, 
+            recipient, 
+            amount, 
+            currency
+          );
+          console.log(`Crossmint transaction executed: ${txHash}`);
+        } catch (crossmintError) {
+          console.error("Crossmint transaction failed, fallback to Sei:", crossmintError);
+          // Fallback to direct Sei network transaction
+          txHash = await seiNetwork.sendTransaction(agent.walletAddress, recipient, amount, currency);
+        }
+      } else {
+        // Execute payment through Sei network directly
+        txHash = await seiNetwork.sendTransaction(agent.walletAddress!, recipient, amount, currency);
+      }
 
       // Record transaction
       await storage.createTransaction({
@@ -82,6 +109,7 @@ export class AgentManager {
         amount,
         currency,
         recipient,
+        txHash,
         description: `Payment sent by ${agent.name}`,
       });
 
@@ -101,22 +129,6 @@ export class AgentManager {
     }
   }
 
-  private async createCrossmintWallet(agent: Agent): Promise<string> {
-    try {
-      // Mock Crossmint wallet creation
-      console.log(`Creating Crossmint wallet for agent: ${agent.name}`);
-      
-      // Simulate API call to Crossmint
-      const walletAddress = `0x${Math.random().toString(16).substr(2, 40)}`;
-      
-      console.log(`Crossmint wallet created: ${walletAddress}`);
-      return walletAddress;
-    } catch (error) {
-      console.error("Error creating Crossmint wallet:", error);
-      throw error;
-    }
-  }
-
   async getAgentMetrics(): Promise<any> {
     const agents = await storage.getAgents();
     const transactions = await storage.getTransactions();
@@ -126,7 +138,7 @@ export class AgentManager {
     const monthlyPayments = transactions.filter(t => {
       const monthAgo = new Date();
       monthAgo.setMonth(monthAgo.getMonth() - 1);
-      return t.createdAt >= monthAgo;
+      return t.createdAt && t.createdAt >= monthAgo;
     }).reduce((sum, t) => sum + t.amount, 0);
 
     return {

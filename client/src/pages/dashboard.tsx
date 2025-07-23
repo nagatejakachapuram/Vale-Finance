@@ -4,7 +4,7 @@ import { MetricsCards } from "@/components/dashboard/metrics-cards";
 import { ActiveAgents } from "@/components/dashboard/active-agents";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { AgentDeployment } from "@/components/dashboard/agent-deployment";
-import { ConversationalInterface } from "@/components/dashboard/conversational-interface";
+import ConversationalInterface from "@/components/ConversationalInterface";
 
 export default function Dashboard() {
   return (

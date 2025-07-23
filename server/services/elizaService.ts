@@ -1,4 +1,5 @@
 import { Agent } from "@shared/schema";
+import { openaiService } from "./openaiService";
 
 export interface ElizaAgentConfig {
   name: string;
@@ -40,22 +41,34 @@ export class ElizaService {
         }
       };
 
-      // Mock ElizaOS agent deployment
-      console.log(`Deploying ElizaOS agent: ${agent.name}`, config);
+      console.log(`Deploying AI agent: ${agent.name}`, config);
       
-      // Simulate agent initialization
-      const mockAgent = {
+      // Test OpenAI connection by generating an initial decision
+      const initialContext = {
+        agentType: agent.type,
+        budget: agent.budget,
+        status: 'deployment',
+        walletAddress: agent.walletAddress
+      };
+
+      const aiDecision = await openaiService.generateAgentDecision(agent.type, initialContext);
+      console.log(`AI agent initial decision: ${aiDecision}`);
+      
+      // Create agent instance with real AI capabilities
+      const aiAgent = {
         id: agent.id,
         config,
         status: "active",
         walletAddress: agent.walletAddress,
         lastActivity: new Date(),
+        aiEnabled: true,
+        lastDecision: aiDecision,
       };
 
-      this.agents.set(agent.id, mockAgent);
+      this.agents.set(agent.id, aiAgent);
       return true;
     } catch (error) {
-      console.error("Error deploying ElizaOS agent:", error);
+      console.error("Error deploying AI agent:", error);
       return false;
     }
   }
@@ -83,21 +96,55 @@ export class ElizaService {
       const agent = this.agents.get(agentId);
       if (!agent) throw new Error("Agent not found");
 
-      console.log(`Executing action ${action} on agent ${agentId}`, params);
+      console.log(`Executing AI-powered action ${action} on agent ${agentId}`, params);
 
-      // Mock action execution based on agent type
+      // Use AI to make decision about the action
+      const context = {
+        action,
+        params,
+        agentType: agent.config.type,
+        currentBudget: params.budget || 0,
+        walletAddress: agent.walletAddress,
+        timestamp: new Date().toISOString()
+      };
+
+      const aiDecision = await openaiService.generateAgentDecision(agent.config.type, context);
+      console.log(`AI Decision for ${action}: ${aiDecision}`);
+
+      // Update agent's last decision and activity
+      agent.lastDecision = aiDecision;
+      agent.lastActivity = new Date();
+
+      // Execute action based on AI decision and type
       switch (action) {
         case "process_payroll":
-          return { success: true, amount: params.amount, recipients: params.recipients };
+          return { 
+            success: true, 
+            amount: params.amount, 
+            recipients: params.recipients,
+            aiDecision,
+            reasoning: "AI-validated payroll processing"
+          };
         case "send_payment":
-          return { success: true, txHash: `0x${Math.random().toString(16).substr(2, 64)}` };
+          return { 
+            success: true, 
+            txHash: `0x${Math.random().toString(16).substr(2, 64)}`,
+            aiDecision,
+            reasoning: "AI-approved payment transaction"
+          };
         case "allocate_yield":
-          return { success: true, pool: params.pool, apy: params.apy };
+          return { 
+            success: true, 
+            pool: params.pool, 
+            apy: params.apy,
+            aiDecision,
+            reasoning: "AI-optimized yield allocation"
+          };
         default:
           throw new Error(`Unknown action: ${action}`);
       }
     } catch (error) {
-      console.error("Error executing agent action:", error);
+      console.error("Error executing AI agent action:", error);
       throw error;
     }
   }

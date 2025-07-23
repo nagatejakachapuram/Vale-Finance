@@ -73,6 +73,7 @@ export const insertTransactionSchema = createInsertSchema(transactions).pick({
   amount: true,
   currency: true,
   recipient: true,
+  txHash: true,
   description: true,
 });
 
