@@ -1,0 +1,17 @@
+Project Overview: Vale Finance
+Vale Finance is an intelligent B2B payment platform built on the Sei network, designed to automate and simplify complex corporate financial workflows. It functions as a command center where businesses can deploy and manage autonomous "Payments Agents" to handle tasks like payroll, supplier invoices, and other recurring transactions with unparalleled efficiency and security. By abstracting away the complexities of blockchain, Vale Finance delivers a seamless and intuitive user experience for any business looking to leverage the power of on-chain finance.
+
+How We Use the Toolkits
+Our platform's advanced functionality is made possible by integrating a suite of powerful, specialized toolkits from the Sei ecosystem:
+
+1. Crossmint GOAT SDK: For Secure, Invisible Wallets
+Crossmint is the backbone of our user onboarding and agent creation process. Instead of requiring businesses to manage complex seed phrases, we use the Crossmint SDK to programmatically create a secure, non-custodial wallet for each "Payments Agent" a company deploys. This means a business can instantly set up a "Payroll Agent" or an "Invoice Agent" with its own unique on-chain identity and segregated funds, all handled seamlessly in the background. This dramatically improves security and provides a user experience that feels as simple as any traditional finance application.
+
+2. Rivalz Oracles: For Real-World, Data-Driven Payments
+Rivalz Oracles gives our payment agents "senses" to perceive and react to real-world events. We leverage this to enable "Smart Invoices," where payments are automatically executed based on verified off-chain data. For example, a business can create a payment instruction to "Pay our supplier $5,000 USDC only when the Rivalz Oracle confirms from a logistics API that the shipment has been delivered." This moves beyond simple scheduled payments into the realm of truly automated, trustless B2B commerce.
+
+3. Sei MCP: For Conversational Finance Management
+We use the Sei Model Context Protocol (MCP) to provide a revolutionary, natural-language interface for managing the platform. A finance manager doesn't need to be a crypto expert; they can simply talk to the Vale Finance system. They can issue commands like, "Vale, what was our total outflow to suppliers this month?" or "Schedule a recurring payment of 2,000 USDC to our marketing contractor on the 15th of every month." Sei MCP translates these conversational commands into the concrete actions our backend and smart contracts execute, making powerful on-chain operations accessible to anyone.
+
+4. ElizaOS: For Truly Autonomous Agent Logic
+ElizaOS serves as the foundational framework for the "brain" of our most advanced payment agents. While simple agents can be run by a standard backend, we use ElizaOS to build truly autonomous agents with persistent identities and complex logic. An agent built with ElizaOS can manage its own multi-step workflows, such as checking its balance, deciding if it needs to swap assets to make a payment, executing the payment, and then sending a confirmation notification—all as a single, independent entity. This framework is key to our vision of creating a fully autonomous financial back-office for businesses on the Sei network.
