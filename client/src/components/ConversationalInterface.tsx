@@ -115,10 +115,10 @@ export default function ConversationalInterface() {
 
   const formatMessage = (content: string) => {
     return content.split('\n').map((line, index) => (
-      <React.Fragment key={index}>
+      <span key={index}>
         {line}
         {index < content.split('\n').length - 1 && <br />}
-      </React.Fragment>
+      </span>
     ));
   };
 
