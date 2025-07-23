@@ -86,6 +86,50 @@ ${result.details}`;
 
   private async analyzeCommand(message: string): Promise<any> {
     try {
+      // Simple keyword-based analysis to reduce API calls
+      const lowerMessage = message.toLowerCase();
+      
+      // Check for agent creation keywords
+      if (lowerMessage.includes('create') && (lowerMessage.includes('agent') || lowerMessage.includes('payroll') || lowerMessage.includes('treasury') || lowerMessage.includes('invoice'))) {
+        const agentType = lowerMessage.includes('payroll') ? 'payroll' : 
+                         lowerMessage.includes('treasury') ? 'treasury' :
+                         lowerMessage.includes('invoice') ? 'invoice' : 'payroll';
+        
+        // Extract budget if mentioned
+        const budgetMatch = message.match(/\$?(\d+,?\d*)/);
+        const budget = budgetMatch ? parseInt(budgetMatch[1].replace(',', '')) : 1000;
+        
+        return {
+          action: 'create_agent',
+          parameters: {
+            type: agentType,
+            budget: budget,
+            crossmintEnabled: true,
+            name: `${agentType.charAt(0).toUpperCase() + agentType.slice(1)} Agent`
+          },
+          confidence: 0.9
+        };
+      }
+      
+      // Check for payment keywords
+      if (lowerMessage.includes('send') && (lowerMessage.includes('payment') || lowerMessage.includes('$') || lowerMessage.includes('pay'))) {
+        return {
+          action: 'send_payment',
+          parameters: {},
+          confidence: 0.8
+        };
+      }
+      
+      // Check for balance keywords
+      if (lowerMessage.includes('balance') || lowerMessage.includes('treasury') || lowerMessage.includes('funds')) {
+        return {
+          action: 'check_balance',
+          parameters: {},
+          confidence: 0.9
+        };
+      }
+      
+      // Fallback to OpenAI analysis for complex queries (with rate limit handling)
       const analysisPrompt = `Analyze this user message and determine if it contains a specific financial command that should be executed:
 
 Message: "${message}"
@@ -93,19 +137,9 @@ Message: "${message}"
 Respond with a JSON object containing:
 {
   "action": "create_agent" | "send_payment" | "check_balance" | "conversation",
-  "parameters": {
-    // relevant parameters for the action
-  },
+  "parameters": {},
   "confidence": 0.0 to 1.0
-}
-
-Financial actions to detect:
-- create_agent: "create a payroll agent", "deploy invoice agent", etc.
-- send_payment: "send $100 to address", "pay the supplier", etc.
-- check_balance: "what's my balance", "check treasury", etc.
-- conversation: regular conversation or questions
-
-Only return "conversation" if no clear financial action is detected.`;
+}`;
 
       const analysisResponse = await openaiService.processConversation([
         { role: 'system', content: 'You are a financial command analyzer. Respond only with valid JSON.' },
@@ -117,6 +151,7 @@ Only return "conversation" if no clear financial action is detected.`;
       } catch {
         return { action: 'conversation', parameters: {}, confidence: 0.5 };
       }
+      
     } catch (error) {
       console.error('Error analyzing command:', error);
       return { action: 'conversation', parameters: {}, confidence: 0.0 };

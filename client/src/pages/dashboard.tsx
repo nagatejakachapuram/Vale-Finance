@@ -5,6 +5,7 @@ import { ActiveAgents } from "@/components/dashboard/active-agents";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { AgentDeployment } from "@/components/dashboard/agent-deployment";
 import ConversationalInterface from "@/components/ConversationalInterface";
+import QuickPayment from "@/components/QuickPayment";
 
 export default function Dashboard() {
   return (
@@ -47,9 +48,10 @@ export default function Dashboard() {
             <AgentDeployment />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <RecentActivity />
             <ConversationalInterface />
+            <QuickPayment />
           </div>
         </main>
       </div>

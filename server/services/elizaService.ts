@@ -43,7 +43,7 @@ export class ElizaService {
 
       console.log(`Deploying AI agent: ${agent.name}`, config);
       
-      // Test OpenAI connection by generating an initial decision
+      // Generate initial AI decision for deployment
       const initialContext = {
         agentType: agent.type,
         budget: agent.budget,
