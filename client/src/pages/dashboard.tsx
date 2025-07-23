@@ -2,11 +2,9 @@ import { Header } from "@/components/dashboard/header";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { MetricsCards } from "@/components/dashboard/metrics-cards";
 import { ActiveAgents } from "@/components/dashboard/active-agents";
-import { IntegrationStatus } from "@/components/dashboard/integration-status";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 import { AgentDeployment } from "@/components/dashboard/agent-deployment";
 import { ConversationalInterface } from "@/components/dashboard/conversational-interface";
-import { ReplitStatus } from "@/components/dashboard/replit-status";
 
 export default function Dashboard() {
   return (
@@ -46,16 +44,13 @@ export default function Dashboard() {
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <ActiveAgents />
-            <IntegrationStatus />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <RecentActivity />
             <AgentDeployment />
           </div>
 
-          <ConversationalInterface />
-          <ReplitStatus />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <RecentActivity />
+            <ConversationalInterface />
+          </div>
         </main>
       </div>
     </div>
