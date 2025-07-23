@@ -55,7 +55,7 @@ export default function Home() {
                 Launch Application
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="text-white border-white hover:bg-white hover:text-black px-8 py-4 text-lg">
+            <Button variant="outline" size="lg" className="text-white border-white bg-transparent hover:bg-white hover:text-black px-8 py-4 text-lg">
               <i className="fas fa-book mr-2"></i>
               Read Documentation
             </Button>
@@ -194,7 +194,7 @@ export default function Home() {
                 Get Started Now
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="text-white border-white hover:bg-white hover:text-black px-8 py-4 text-lg">
+            <Button variant="outline" size="lg" className="text-white border-white bg-transparent hover:bg-white hover:text-black px-8 py-4 text-lg">
               <i className="fas fa-calendar mr-2"></i>
               Schedule Demo
             </Button>
