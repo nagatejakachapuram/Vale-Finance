@@ -71,7 +71,11 @@ export class CrossmintService {
     }
   }
 
-  async getWalletBalance(walletAddress: string): Promise<number> {
+  async getWalletBalance(walletAddress: string): Promise<{ balance: string; currency: string }[]> {
+    if (!this.isAvailable) {
+      return [];
+    }
+
     try {
       // For Sei network, we'll use the native RPC to get balance
       const seiRpcUrl = process.env.SEI_RPC_URL || "https://evm-rpc-testnet.sei-apis.com";
@@ -111,10 +115,6 @@ export class CrossmintService {
   }
 
   async sendTransaction(fromWalletId: string, toAddress: string, amount: number, currency: string = 'SEI'): Promise<string> {
-    if (!this.isAvailable) {
-      throw new Error('Crossmint service is not available. Please configure CROSSMINT_SERVER_KEY and CROSSMINT_PROJECT_ID.');
-    }
-
     try {
       console.log(`Sending ${amount} ${currency} from wallet ${fromWalletId} to ${toAddress}`);
 
