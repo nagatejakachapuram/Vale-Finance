@@ -18,7 +18,7 @@ export default function Home() {
           </div>
           <div className="flex items-center space-x-4">
             <Link href="/dashboard">
-              <Button variant="outline" className="text-white border-white hover:bg-white hover:text-black">
+              <Button variant="outline" className="text-white border-white bg-transparent hover:bg-white hover:text-black">
                 Launch App
               </Button>
             </Link>
