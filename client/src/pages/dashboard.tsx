@@ -9,13 +9,38 @@ import ConversationalInterface from "@/components/ConversationalInterface";
 import QuickPayment from "@/components/QuickPayment";
 
 export default function Dashboard() {
-  // Force scroll to top when component mounts
+  // Force scroll to top when component mounts and prevent auto-scroll
   useEffect(() => {
+    // Immediate scroll to top
     window.scrollTo(0, 0);
-    const mainElement = document.querySelector('main');
+    
+    // Also ensure main container starts at top
+    const mainElement = document.querySelector('main[class*="overflow-y-auto"]');
     if (mainElement) {
       mainElement.scrollTop = 0;
     }
+    
+    // Prevent any automatic scrolling for the first few seconds
+    const preventAutoScroll = (e: Event) => {
+      if (e.target && typeof (e.target as Element).closest === 'function') {
+        if ((e.target as Element).closest('.conversational-interface')) {
+          return; // Allow scrolling within chat
+        }
+      }
+      window.scrollTo(0, 0);
+    };
+    
+    // Add temporary scroll prevention
+    const timeoutId = setTimeout(() => {
+      window.removeEventListener('scroll', preventAutoScroll);
+    }, 2000);
+    
+    window.addEventListener('scroll', preventAutoScroll);
+    
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('scroll', preventAutoScroll);
+    };
   }, []);
 
   return (
@@ -58,12 +83,11 @@ export default function Dashboard() {
             <AgentDeployment />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <RecentActivity />
             <QuickPayment />
+            <ConversationalInterface />
           </div>
-
-          <ConversationalInterface />
         </main>
       </div>
     </div>

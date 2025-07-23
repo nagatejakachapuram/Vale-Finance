@@ -28,21 +28,36 @@ export default function ConversationalInterface() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Only scroll within the chat container, not the entire page
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: "smooth",
+        block: "end",
+        inline: "nearest"
+      });
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
+    // Only scroll to bottom if there are actual messages being added
+    if (messages.length > 1) {
+      scrollToBottom();
+    }
   }, [messages]);
 
-  // Initialize conversation with welcome message
+  // Initialize conversation with welcome message (delayed to prevent scroll issues)
   useEffect(() => {
     if (messages.length === 0) {
-      setMessages([{
-        role: 'assistant',
-        content: 'Hello! I\'m Vale Finance AI, your intelligent assistant for managing payments and agents on the Sei blockchain. I can help you:\n\n• Create and manage payment agents\n• Execute secure transactions\n• Check balances and analytics\n• Answer questions about your financial operations\n\nWhat would you like to do today?',
-        timestamp: new Date().toISOString(),
-      }]);
+      // Delay welcome message to prevent auto-scroll on page load
+      const timer = setTimeout(() => {
+        setMessages([{
+          role: 'assistant',
+          content: 'Hello! I\'m Vale Finance AI, your intelligent assistant for managing payments and agents on the Sei blockchain. I can help you:\n\n• Create and manage payment agents\n• Execute secure transactions\n• Check balances and analytics\n• Answer questions about your financial operations\n\nWhat would you like to do today?',
+          timestamp: new Date().toISOString(),
+        }]);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
     }
   }, [messages.length]);
 
@@ -123,7 +138,7 @@ export default function ConversationalInterface() {
   };
 
   return (
-    <Card className="h-[500px] flex flex-col">
+    <Card className="h-[500px] flex flex-col conversational-interface">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2">
           <MessageSquare className="h-5 w-5" />
