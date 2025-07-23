@@ -18,12 +18,18 @@ export class OpenAIService {
   constructor() {
     this.apiKey = process.env.OPENAI_API_KEY || '';
     if (!this.apiKey) {
-      throw new Error('OPENAI_API_KEY environment variable is required');
+      console.warn('OPENAI_API_KEY environment variable is not set. OpenAI features will be disabled.');
+      this.apiKey = '';
     }
   }
 
   async generateAgentDecision(agentType: string, context: any): Promise<string> {
     try {
+      if (!this.apiKey) {
+        console.warn('OpenAI API key not available, using fallback decision');
+        return this.generateFallbackDecision(agentType, context);
+      }
+
       const systemPrompt = this.getSystemPrompt(agentType);
       const userPrompt = `Context: ${JSON.stringify(context, null, 2)}
       
@@ -65,6 +71,10 @@ Please analyze this financial context and provide a decision on whether to proce
 
   async processConversation(messages: OpenAIMessage[]): Promise<string> {
     try {
+      if (!this.apiKey) {
+        return "I'm currently running in offline mode. You can still use the dashboard to manage agents, send payments, and view analytics directly.";
+      }
+
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
